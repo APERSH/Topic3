@@ -20,8 +20,8 @@ from rest_framework.routers import SimpleRouter
 from app.views import DogViewSet, BreedViewSet
 
 router = SimpleRouter()
-router.register(r'dog', DogViewSet)
-router.register(r'breed', BreedViewSet)
+router.register(r'dogs', DogViewSet)
+router.register(r'breeds', BreedViewSet)
 
 
 urlpatterns = [
