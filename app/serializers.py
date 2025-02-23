@@ -17,15 +17,14 @@ class DogsSerializer(ModelSerializer):
         return None
     
     def get_average_age(self, obj):
-        if 'list' in self.context['view'].action:
-            breed_avg_age = Dog.objects.filter(breed = obj.breed).aggregate(Avg('age'))['age__avg']
-            return breed_avg_age
-        return None
+        breed_avg_age = Dog.objects.filter(breed = obj.breed).aggregate(Avg('age'))['age__avg']
+        return breed_avg_age
+        
 
 class BreedsSerializer(ModelSerializer):
 
     dog_count = IntegerField(source='dogs.count', read_only=True)
-
+    
     class Meta:
         model = Breed
         fields = "__all__"
