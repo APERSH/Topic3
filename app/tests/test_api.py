@@ -5,9 +5,13 @@ from django.urls import reverse
 from app.serializers import DogsSerializer, BreedsSerializer
 from rest_framework import status
 
-
+# Тесты для API работы с собаками
 class DogApiTestCase(APITestCase):
     def setUp(self) -> None:
+        """
+        Метод для подготовки тестовых данных перед выполнением тестов.
+        Создаются две собаки одинаковой породы.
+        """
         self.breed = Breed.objects.create(
            name = "Labrador", 
            size = "Large", 
@@ -36,6 +40,10 @@ class DogApiTestCase(APITestCase):
         )
 
     def test_get(self):
+        """
+        Тестирует получение списка всех собак.
+        Сравнивает ответ с данными сериализатора.
+        """
         url = reverse("dogs-list")
         response = self.client.get(url)
         serializer_data = DogsSerializer([self.dog1, self.dog2], many = True).data
@@ -43,7 +51,12 @@ class DogApiTestCase(APITestCase):
         self.assertEqual(serializer_data, response.data)
         self.assertEqual(serializer_data[0]['average_age'], 4)
 
+
     def test_create(self):
+        """
+        Тестирует создание новой собаки.
+        Проверяет увеличение количества собак в базе данных.
+        """
         self.assertEqual(2, Dog.objects.all().count())
         url = reverse("dogs-list")
         data = {
@@ -60,7 +73,12 @@ class DogApiTestCase(APITestCase):
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertEqual(3, Dog.objects.all().count())
 
+
     def test_get_detail(self):
+        """
+        Тестирует получение данных о конкретной собаке.
+        Проверяет, что количество собак той же породы корректно отображается.
+        """
         url = reverse("dogs-detail", args=(self.dog1.id,))
         response = self.client.get(url)
         serializer_data = DogsSerializer(self.dog1).data
@@ -69,6 +87,10 @@ class DogApiTestCase(APITestCase):
         self.assertEqual(serializer_data['same_breed_count'], 2)
 
     def test_update(self):
+        """
+        Тестирует обновление данных собаки.
+        Проверяет правильность обновления.
+        """
         url = reverse("dogs-detail", args=(self.dog1.id,))
         data = {
             "name" : self.dog1.name,
@@ -86,6 +108,10 @@ class DogApiTestCase(APITestCase):
         self.assertEqual(20, self.dog1.age)
 
     def test_delete(self):
+        """
+        Тестирует удаление собаки.
+        Проверяет, что количество собак уменьшается на 1 после удаления.
+        """
         self.assertEqual(2, Dog.objects.all().count())
         url = reverse("dogs-detail", args=(self.dog1.id,))
         response = self.client.delete(url)
@@ -93,8 +119,13 @@ class DogApiTestCase(APITestCase):
         self.assertEqual(1, Dog.objects.all().count())
 
 
+# Тесты для API работы с породами собак
 class BreedApiTestCase(APITestCase):
     def setUp(self) -> None:
+        """
+        Метод для подготовки тестовых данных перед выполнением тестов.
+        Создаются две породы собак и по одной собаке для каждой породы.
+        """
         self.breed1 = Breed.objects.create(
            name = "Labrador", 
            size = "Large", 
@@ -131,6 +162,11 @@ class BreedApiTestCase(APITestCase):
         )
 
     def test_get(self):
+        """
+        Тестирует получение списка всех пород.
+        Сравнивает ответ с данными сериализатора.
+        Проверяет правильность отображения количества собак для каждой породы.
+        """
         url = reverse("breeds-list")
         response = self.client.get(url)
         serializer_data = BreedsSerializer([self.breed1, self.breed2], many = True).data
@@ -140,6 +176,10 @@ class BreedApiTestCase(APITestCase):
         self.assertEqual(1, serializer_data[1]['dog_count'])
 
     def test_create(self):
+        """
+        Тестирует создание новой породы.
+        Проверяет увеличение количества пород в базе данных.
+        """
         self.assertEqual(2, Breed.objects.all().count())
         url = reverse("breeds-list")
         data = {
@@ -156,6 +196,9 @@ class BreedApiTestCase(APITestCase):
         self.assertEqual(3, Breed.objects.all().count())
 
     def test_get_detail(self):
+        """
+        Тестирует получение данных о конкретной породе.
+        """
         url = reverse("breeds-detail", args=(self.breed1.id,))
         response = self.client.get(url)
         serializer_data = BreedsSerializer(self.breed1).data
@@ -164,6 +207,10 @@ class BreedApiTestCase(APITestCase):
         self.assertEqual(serializer_data['dog_count'], 1)
 
     def test_update(self):
+        """
+        Тестирует обновление данных породы.
+        Проверяет правильность обновления.
+        """
         url = reverse("breeds-detail", args=(self.breed1.id,))
         data = {
             "name" : self.breed1.name,
@@ -180,6 +227,10 @@ class BreedApiTestCase(APITestCase):
         self.assertEqual(1, self.breed1.exercise_needs)
 
     def test_delete(self):
+        """
+        Тестирует удаление породы.
+        Проверяет, что количество пород уменьшается на 1 после удаления.
+        """
         self.assertEqual(2, Breed.objects.all().count())
         url = reverse("breeds-detail", args=(self.breed1.id,))
         response = self.client.delete(url)
